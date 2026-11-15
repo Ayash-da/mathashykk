@@ -1,0 +1,243 @@
+
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Крути барабан</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #e9d5ff, #c4b5fd);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    background: white;
+    width: 90%;
+    max-width: 550px;
+    padding: 30px;
+    border-radius: 25px;
+    text-align: center;
+    box-shadow: 0 10px 30px #8064a2;
+}
+
+h1 {
+    color: #693a8f;
+}
+
+.wheel {
+    width: 260px;
+    height: 260px;
+    margin: 30px auto;
+    border-radius: 50%;
+    border: 8px solid white;
+    background: conic-gradient(
+        #ff9fbd 0deg 60deg,
+        #b99aff 60deg 120deg,
+        #85d6ff 120deg 180deg,
+        #ffdc82 180deg 240deg,
+        #9ee6bb 240deg 300deg,
+        #ffad85 300deg 360deg
+    );
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: transform 4s cubic-bezier(.15,.7,.2,1);
+    box-shadow: 0 5px 15px #aaa;
+}
+
+.wheel span {
+    font-size: 55px;
+}
+
+.pointer {
+    font-size: 35px;
+    margin-bottom: -45px;
+    position: relative;
+    z-index: 2;
+}
+
+button {
+    background: #8b5cf6;
+    color: white;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-size: 17px;
+    cursor: pointer;
+    margin: 10px;
+}
+
+button:hover {
+    background: #693a8f;
+}
+
+button:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+#question {
+    font-size: 20px;
+    color: #493263;
+    margin: 25px 0;
+    font-weight: bold;
+}
+
+#answer {
+    display: none;
+    background: #f3e8ff;
+    color: #493263;
+    padding: 18px;
+    border-radius: 12px;
+    margin-top: 15px;
+    font-size: 17px;
+    line-height: 1.5;
+}
+
+#score {
+    color: #693a8f;
+    font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>🎡 Айналдыру</h1>
+    <p>Прогрессиялар тақырыбы бойынша сұрақтар</p>
+
+    <div class="pointer">🔻</div>
+
+    <div class="wheel" id="wheel">
+        <span>🎯</span>
+    </div>
+
+    <button id="spinBtn" onclick="spin()">
+        КРУТИ!
+    </button>
+
+    <div id="question"></div>
+
+    <button id="showBtn" onclick="showAnswer()" style="display:none">
+        Дұрыс жауабын көру
+    </button>
+
+    <div id="answer"></div>
+
+    <p id="score">Сұрақтар: 0/6</p>
+
+</div>
+
+<script>
+
+const questions = [
+    {
+        question: "1. Сан тізбегі деген не?",
+        answer: "Белгілі бір заңдылықпен орналасқан сандар жиыны."
+    },
+    {
+        question: "2. Арифметикалық прогрессия деген не?",
+        answer: "Әрбір келесі мүшесі алдыңғы мүшесіне бірдей санды қосу арқылы алынатын тізбек."
+    },
+    {
+        question: "3. Геометриялық прогрессия деген не?",
+        answer: "Әрбір келесі мүшесі алдыңғы мүшесін бірдей нөлден өзге санға көбейту арқылы алынатын тізбек."
+    },
+    {
+        question: "4. Арифметикалық және геометриялық прогрессияның айырмашылығы қандай?",
+        answer: "Арифметикалық прогрессияда тұрақты сан қосылады, ал геометриялық прогрессияда тұрақты санға көбейтіледі."
+    },
+    {
+        question: "5. Арифметикалық прогрессияның айырымының формуласы қандай?",
+        answer: "d = a₂ − a₁"
+    },
+    {
+        question: "6. Арифметикалық прогрессияның n-ші мүшесінің формуласы қандай?",
+        answer: "aₙ = a₁ + (n − 1)d"
+    }
+];
+
+let usedQuestions = [];
+let currentQuestion = null;
+let rotation = 0;
+let spinning = false;
+
+function spin() {
+
+    if (spinning) return;
+
+    if (usedQuestions.length === questions.length) {
+        alert("🎉 Барлық сұрақ аяқталды!");
+        usedQuestions = [];
+    }
+
+    let available = questions
+        .map((q, i) => i)
+        .filter(i => !usedQuestions.includes(i));
+
+    let random = Math.floor(Math.random() * available.length);
+
+    currentQuestion = available[random];
+
+    spinning = true;
+
+    rotation += 1800 + Math.floor(Math.random() * 360);
+
+    document.getElementById("wheel").style.transform =
+        `rotate(${rotation}deg)`;
+
+    document.getElementById("spinBtn").disabled = true;
+
+    document.getElementById("showBtn").style.display = "none";
+    document.getElementById("answer").style.display = "none";
+
+    setTimeout(() => {
+
+        document.getElementById("question").innerText =
+            questions[currentQuestion].question;
+
+        document.getElementById("showBtn").style.display = "inline-block";
+
+        document.getElementById("spinBtn").disabled = false;
+
+        document.getElementById("spinBtn").innerText =
+            "КЕЛЕСІ СҰРАҚ 🎡";
+
+        spinning = false;
+
+    }, 4000);
+}
+
+function showAnswer() {
+
+    document.getElementById("answer").innerText =
+        questions[currentQuestion].answer;
+
+    document.getElementById("answer").style.display = "block";
+
+    document.getElementById("showBtn").style.display = "none";
+
+    usedQuestions.push(currentQuestion);
+
+    document.getElementById("score").innerText =
+        "Сұрақтар: " + usedQuestions.length + "/6";
+
+}
+
+</script>
+
+</body>
+</html>
